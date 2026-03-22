@@ -24,6 +24,12 @@ search_20260101_120000_Thomas_Jefferson_University_20250101/
 └── TJU_20250101_summary.txt       # Plain text summary
 ```
 
+## Requirements
+
+- **Python 3.8 or higher** — download at [python.org/downloads](https://www.python.org/downloads/)
+- **SerpAPI key** — free at [serpapi.com](https://serpapi.com)
+- Python packages are installed automatically on first run (or manually via `pip install -r requirements.txt`)
+
 ## Getting Started
 
 1. **Clone the repo**

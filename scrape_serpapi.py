@@ -1,5 +1,5 @@
 """
-Patent Scraper — SerpAPI Google Patents
+TJU Patent Scraper — SerpAPI Google Patents
 Produces one Excel file with two sheets:
   1. Granted patents only
   2. All activity (grants + applications)
@@ -13,6 +13,14 @@ import subprocess
 import sys
 import os
 import time
+
+# Python version check
+if sys.version_info < (3, 8):
+    sys.exit(
+        f"ERROR: Python 3.8 or higher is required. "
+        f"You are running Python {sys.version_info.major}.{sys.version_info.minor}. "
+        f"Download the latest version at https://www.python.org/downloads/"
+    )
 
 # Auto-install missing dependencies
 def install_requirements():
