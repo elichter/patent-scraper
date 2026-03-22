@@ -1,6 +1,6 @@
 # Patent Scraper
 
-A Python script that searches Google Patents via SerpAPI for patents by **assignee and date range**, producing a structured Excel report with two sheets — granted patents only, and all activity (grants + applications).
+A Python script that searches Google Patents via SerpAPI for patents by **assignee filtered from a start date through today**, producing a structured Excel report with two sheets — granted patents only, and all activity (grants + applications).
 
 ## Features
 
