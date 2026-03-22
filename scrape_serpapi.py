@@ -9,8 +9,27 @@ Free tier: 250 searches/month at serpapi.com
 Install: pip install requests pandas openpyxl
 """
 
+import subprocess
+import sys
 import os
 import time
+
+# Auto-install missing dependencies
+def install_requirements():
+    required = ["requests", "pandas", "openpyxl", "pyyaml"]
+    missing = []
+    for pkg in required:
+        try:
+            __import__(pkg if pkg != "pyyaml" else "yaml")
+        except ImportError:
+            missing.append(pkg)
+    if missing:
+        print(f"Installing missing packages: {', '.join(missing)}...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", *missing])
+        print("Done.\n")
+
+install_requirements()
+
 import yaml
 import requests
 import pandas as pd
