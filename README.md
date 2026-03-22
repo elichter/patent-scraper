@@ -32,7 +32,7 @@ search_20260101_120000_Thomas_Jefferson_University_20250101/
    cd patent-scraper
    ```
 
-2. **Get a SerpAPI key** — sign up free at [serpapi.com](https://serpapi.com) (250 searches/month, no credit card required)
+2. **Get a SerpAPI key** — sign up free at [serpapi.com](https://serpapi.com) (250 searches/month, no credit card required). Once logged in, your API key is available at [serpapi.com/manage-api-key](https://serpapi.com/manage-api-key)
 
 3. **Configure your key**
    ```bash
