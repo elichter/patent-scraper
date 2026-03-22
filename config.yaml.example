@@ -1,0 +1,6 @@
+# SerpAPI configuration
+# 1. Copy this file to config.yaml
+# 2. Replace the placeholder with your actual SerpAPI key
+# 3. Never commit config.yaml to GitHub — it's in .gitignore
+
+api_key: "your_serpapi_key_here"

@@ -1,0 +1,18 @@
+# API credentials — never commit these
+config.yaml
+
+# Proxy list
+proxies.txt
+
+# Output directories
+search_*/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# OS
+.DS_Store
+Thumbs.db
