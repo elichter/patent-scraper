@@ -61,6 +61,7 @@ You will be prompted for an assignee name (e.g. `Thomas Jefferson University`) a
 - Inventor data is cached locally in `inventor_cache.json` — repeat runs skip HTTP requests for patents already seen, making subsequent runs faster.
 - `config.yaml`, `inventor_cache.json`, and any output directories are excluded from version control via `.gitignore`.
 - To install dependencies manually: `pip install -r requirements.txt`
+- **conda users:** `conda install requests pandas openpyxl pyyaml beautifulsoup4`
 
 ## License
 
