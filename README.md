@@ -43,11 +43,9 @@ search_20260101_120000_Thomas_Jefferson_University_20250101/
 3. **Configure your key**
    ```bash
    cp config.yaml.example config.yaml
+   nano config.yaml
    ```
-   Then open `config.yaml` and paste your key:
-   ```yaml
-   api_key: "your_actual_key_here"
-   ```
+   Replace `your_serpapi_key_here` with your actual key, then save with `Ctrl+O`, `Enter`, `Ctrl+X`.
 
 4. **Run** — dependencies install automatically on first run
    ```bash
@@ -60,7 +58,8 @@ You will be prompted for an assignee name (e.g. `Thomas Jefferson University`) a
 
 - SerpAPI's assignee filter does broad text matching. If you get unrelated results (e.g. searching "Philadelphia University" also returns Drexel results due to an acquisition), the script post-filters results to only keep patents where the returned assignee field contains your input string.
 - A typical run uses 2 API credits (one for granted, one for all activity).
-- `config.yaml` and any output directories are excluded from version control via `.gitignore`.
+- Inventor data is cached locally in `inventor_cache.json` — repeat runs skip HTTP requests for patents already seen, making subsequent runs faster.
+- `config.yaml`, `inventor_cache.json`, and any output directories are excluded from version control via `.gitignore`.
 - To install dependencies manually: `pip install -r requirements.txt`
 
 ## License

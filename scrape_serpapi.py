@@ -1,5 +1,5 @@
 """
-Patent Scraper — SerpAPI Google Patents
+TJU Patent Scraper — SerpAPI Google Patents
 Produces one Excel file with two sheets:
   1. Granted patents only
   2. All activity (grants + applications)
@@ -38,6 +38,7 @@ def install_requirements():
 
 install_requirements()
 
+import json
 import yaml
 import requests
 from bs4 import BeautifulSoup
@@ -79,12 +80,38 @@ def fetch_all_inventors(patent_link):
         return "N/A"
 
 
+CACHE_FILE = "inventor_cache.json"
+
+def load_cache():
+    try:
+        with open(CACHE_FILE) as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
+
+def save_cache(cache):
+    with open(CACHE_FILE, "w") as f:
+        json.dump(cache, f, indent=2)
+
 def enrich_inventors(patents, label=""):
+    cache = load_cache()
     print(f"\nFetching full inventor lists for {label} ({len(patents)} patents)...")
+    changed = False
     for i, p in enumerate(patents):
-        p["Inventors"] = fetch_all_inventors(p["Link"])
-        print(f"  [{i+1}/{len(patents)}] {p['Patent Number']}: {p['Inventors']}")
-        time.sleep(0.5)
+        num = p["Patent Number"]
+        if num in cache:
+            p["Inventors"] = cache[num]
+            print(f"  [{i+1}/{len(patents)}] {num}: {cache[num]} (cached)")
+        else:
+            inventors = fetch_all_inventors(p["Link"])
+            p["Inventors"] = inventors
+            cache[num] = inventors
+            changed = True
+            print(f"  [{i+1}/{len(patents)}] {num}: {inventors}")
+            time.sleep(0.5)
+    if changed:
+        save_cache(cache)
+        print(f"  Cache updated → {CACHE_FILE}")
     return patents
 
 
