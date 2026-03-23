@@ -52,17 +52,19 @@ search_20260101_120000_Thomas_Jefferson_University_20250101/
    python3 scrape_serpapi.py
    ```
 
-   On first run you will be asked:
-   -  **Auto-install missing packages? (y/n)** — enter `y` to have the script check for and install any missing dependencies automatically (shows package names and versions before installing). Enter `n` if you prefer to manage dependencies yourself via `pip` or `conda` — note that the script will error if any required packages are missing.
+   You will be prompted for:
+   - **Auto-install missing packages? (y/n)** — enter `y` to have the script check for and install any missing dependencies automatically. Enter `n` if you prefer to manage dependencies yourself — note that the script will error if any required packages are missing.
    - **Assignee name** — e.g. `Thomas Jefferson University`
    - **Start date** — e.g. `20250101` (YYYYMMDD format)
+   - **Parallel fetch? (y/n)** — enter `y` for faster inventor/co-assignee scraping using parallel requests, or `n` for sequential (safer, less likely to be rate-limited)
+   - **Assignee review** — after fetching, the script displays all unique assignee names returned by SerpAPI and asks you to exclude any that do not match your institution (useful for ambiguous names like "Philadelphia University" which may return results from other Philadelphia-based institutions)
 
 ## Notes
 
-- SerpAPI's assignee filter does broad text matching. If you get unrelated results (e.g. searching "Philadelphia University" also returns Drexel results due to it being another university in Philadelphia), the script post-filters results to only keep patents where the returned assignee field contains your input string.
+- SerpAPI's assignee filter does broad text matching. The interactive assignee review step lets you exclude any false positives before saving.
 - A typical run uses 2 API credits (one for granted, one for all activity).
-- Inventor data is cached locally in `inventor_cache.json` — repeat runs skip HTTP requests for patents already seen, making subsequent runs faster.
-- `config.yaml`, `inventor_cache.json`, and any output directories are excluded from version control via `.gitignore`.
+- Inventor and co-assignee data is cached locally in `patent_cache.json` — repeat runs skip HTTP requests for patents already seen, making subsequent runs faster. The cache is shared across searches so running multiple institutions on the same device will reuse cached data.
+- `config.yaml`, `patent_cache.json`, and any output directories are excluded from version control via `.gitignore`.
 - To install dependencies manually: `pip install -r requirements.txt`
 - **conda users who prefer not to mix pip:** run `conda install requests pandas openpyxl pyyaml beautifulsoup4` before running the script, then answer `n` when prompted about auto-installing packages.
 
