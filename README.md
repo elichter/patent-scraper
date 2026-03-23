@@ -59,7 +59,7 @@ search_20260101_120000_Thomas_Jefferson_University_20250101/
 
 ## Notes
 
-- SerpAPI's assignee filter does broad text matching. If you get unrelated results (e.g. searching "Philadelphia University" also returns Drexel results due to an acquisition), the script post-filters results to only keep patents where the returned assignee field contains your input string.
+- SerpAPI's assignee filter does broad text matching. If you get unrelated results (e.g. searching "Philadelphia University" also returns Drexel results due to it being another university in Philadelphia), the script post-filters results to only keep patents where the returned assignee field contains your input string.
 - A typical run uses 2 API credits (one for granted, one for all activity).
 - Inventor data is cached locally in `inventor_cache.json` — repeat runs skip HTTP requests for patents already seen, making subsequent runs faster.
 - `config.yaml`, `inventor_cache.json`, and any output directories are excluded from version control via `.gitignore`.
