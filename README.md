@@ -47,12 +47,15 @@ search_20260101_120000_Thomas_Jefferson_University_20250101/
    ```
    Replace `your_serpapi_key_here` with your actual key, then save with `Ctrl+O`, `Enter`, `Ctrl+X`.
 
-4. **Run** — dependencies install automatically on first run
+4. **Run**
    ```bash
    python3 scrape_serpapi.py
    ```
 
-You will be prompted for an assignee name (e.g. `Thomas Jefferson University`) and a start date (e.g. `20250101`).
+   On first run you will be asked:
+   - **Auto-install missing packages? (y/n)** — enter `y` to let the script install dependencies automatically (shows package names and versions before installing), or `n` if you have already installed them manually via pip or conda.
+   - **Assignee name** — e.g. `Thomas Jefferson University`
+   - **Start date** — e.g. `20250101` (YYYYMMDD format)
 
 ## Notes
 
@@ -61,7 +64,7 @@ You will be prompted for an assignee name (e.g. `Thomas Jefferson University`) a
 - Inventor data is cached locally in `inventor_cache.json` — repeat runs skip HTTP requests for patents already seen, making subsequent runs faster.
 - `config.yaml`, `inventor_cache.json`, and any output directories are excluded from version control via `.gitignore`.
 - To install dependencies manually: `pip install -r requirements.txt`
-- **conda users:** `conda install requests pandas openpyxl pyyaml beautifulsoup4`
+- **conda users who prefer not to mix pip:** run `conda install requests pandas openpyxl pyyaml beautifulsoup4` before running the script, then answer `n` when prompted about auto-installing packages.
 
 ## License
 
