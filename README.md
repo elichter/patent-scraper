@@ -53,7 +53,7 @@ search_20260101_120000_Thomas_Jefferson_University_20250101/
    ```
 
    On first run you will be asked:
-   - - **Auto-install missing packages? (y/n)** — enter `y` to have the script check for and install any missing dependencies automatically (shows package names and versions before installing). Enter `n` if you prefer to manage dependencies yourself via `pip` or `conda`.
+   - - - **Auto-install missing packages? (y/n)** — enter `y` to have the script check for and install any missing dependencies automatically (shows package names and versions before installing). Enter `n` if you prefer to manage dependencies yourself via `pip` or `conda` — note that the script will error if any required packages are missing.
    - **Assignee name** — e.g. `Thomas Jefferson University`
    - **Start date** — e.g. `20250101` (YYYYMMDD format)
 
