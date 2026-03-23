@@ -24,7 +24,7 @@ if sys.version_info < (3, 8):
 
 # Auto-install missing dependencies
 def install_requirements():
-    required = ["requests", "pandas", "openpyxl", "pyyaml"]
+    required = ["requests", "pandas", "openpyxl", "pyyaml", "beautifulsoup4"]
     missing = []
     for pkg in required:
         try:
@@ -40,6 +40,7 @@ install_requirements()
 
 import yaml
 import requests
+from bs4 import BeautifulSoup
 import pandas as pd
 import openpyxl
 from openpyxl.styles import Font
@@ -63,6 +64,28 @@ OUTPUT     = os.path.join(OUTPUT_DIR, f"{SHORT_TAG}_{AFTER_DATE}_patents.xlsx")
 ENDPOINT   = "https://serpapi.com/search"
 
 api_credits_used = 0
+
+
+def fetch_all_inventors(patent_link):
+    """Scrape all inventors from a Google Patents page. Free — no API credit used."""
+    try:
+        resp = requests.get(patent_link, timeout=15, headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        })
+        soup = BeautifulSoup(resp.text, "html.parser")
+        inventors = [tag.get_text(strip=True) for tag in soup.find_all(itemprop="inventor")]
+        return ", ".join(inventors) if inventors else "N/A"
+    except Exception:
+        return "N/A"
+
+
+def enrich_inventors(patents, label=""):
+    print(f"\nFetching full inventor lists for {label} ({len(patents)} patents)...")
+    for i, p in enumerate(patents):
+        p["Inventors"] = fetch_all_inventors(p["Link"])
+        print(f"  [{i+1}/{len(patents)}] {p['Patent Number']}: {p['Inventors']}")
+        time.sleep(0.5)
+    return patents
 
 
 def fetch_page(page, status=None):
