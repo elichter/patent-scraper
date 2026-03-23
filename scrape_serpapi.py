@@ -1,5 +1,5 @@
 """
-TJU Patent Scraper — SerpAPI Google Patents
+Patent Scraper — SerpAPI Google Patents
 Produces one Excel file with two sheets:
   1. Granted patents only
   2. All activity (grants + applications)
