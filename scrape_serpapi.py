@@ -1,5 +1,5 @@
 """
-Patent Scraper — SerpAPI Google Patents
+TJU Patent Scraper — SerpAPI Google Patents
 Produces one Excel file with two sheets:
   1. Granted patents only
   2. All activity (grants + applications)
@@ -24,19 +24,41 @@ if sys.version_info < (3, 8):
 
 # Auto-install missing dependencies
 def install_requirements():
-    required = ["requests", "pandas", "openpyxl", "pyyaml", "beautifulsoup4"]
-    missing = []
-    for pkg in required:
-        try:
-            __import__(pkg if pkg != "pyyaml" else "yaml")
-        except ImportError:
-            missing.append(pkg)
-    if missing:
-        print(f"Installing missing packages: {', '.join(missing)}...")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", *missing])
-        print("Done.\n")
+    pkg_map = {
+        "requests":       "requests",
+        "pandas":         "pandas",
+        "openpyxl":       "openpyxl",
+        "pyyaml":         "yaml",
+        "beautifulsoup4": "bs4",
+    }
+    import importlib.util
+    missing = [pkg for pkg, imp in pkg_map.items() if not importlib.util.find_spec(imp)]
 
-install_requirements()
+    if not missing:
+        print("All packages already installed.\n")
+        return
+
+    print("The following packages are missing and will be installed:")
+    for pkg in missing:
+        try:
+            result = subprocess.run(
+                [sys.executable, "-m", "pip", "index", "versions", pkg],
+                capture_output=True, text=True
+            )
+            version = "unknown"
+            for line in result.stdout.splitlines():
+                if "LATEST" in line:
+                    version = line.split(":")[-1].strip().split(",")[0].strip()
+                    break
+            print(f"  {pkg} (latest: {version})")
+        except Exception:
+            print(f"  {pkg}")
+
+    subprocess.check_call([sys.executable, "-m", "pip", "install", *missing])
+    print("Done.\n")
+
+if input("Auto-install missing packages if needed? (y/n): ").strip().lower() != "n":
+    install_requirements()
 
 import json
 import yaml
