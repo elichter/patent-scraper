@@ -56,7 +56,7 @@ search_20260101_120000_Thomas_Jefferson_University_20250101/
    - **Auto-install missing packages? (y/n)** — enter `y` to have the script check for and install any missing dependencies automatically. Enter `n` if you prefer to manage dependencies yourself — note that the script will error if any required packages are missing.
    - **Assignee name** — e.g. `Thomas Jefferson University`
    - **Start date** — e.g. `20250101` (YYYYMMDD format)
-   - **Parallel fetch? (y/n)** — enter `y` for faster inventor/co-assignee scraping using parallel requests, or `n` for sequential (safer, less likely to be rate-limited)
+   - **Parallel fetch? (y/n)** — enter `y` for faster inventor/co-assignee scraping using parallel requests, or `n` for sequential (safer, less likely to be rate-limited). If `y`, you will also be asked how many parallel workers to use (recommended: 3-10, default 5)
    - **Assignee review** — after fetching, the script displays all unique assignee names returned by SerpAPI and asks you to exclude any that do not match your institution (useful for ambiguous names like "Philadelphia University" which may return results from other Philadelphia-based institutions)
 
 ## Notes

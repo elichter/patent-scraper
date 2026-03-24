@@ -80,7 +80,13 @@ if not API_KEY or API_KEY == "your_serpapi_key_here":
 ASSIGNEE   = input("Enter assignee name (e.g. Thomas Jefferson University): ").strip()
 AFTER_DATE = input("Enter start date for patent search (YYYYMMDD, e.g. 20250101): ").strip()
 PARALLEL   = input("Fetch inventor/assignee data in parallel? (y/n, faster but may get rate-limited): ").strip().lower() == "y"
-WORKERS    = 5
+if PARALLEL:
+    try:
+        WORKERS = int(input("How many parallel workers? (recommended: 3-10, default 5): ").strip() or "5")
+    except ValueError:
+        WORKERS = 5
+else:
+    WORKERS = 5
 
 TIMESTAMP  = datetime.now().strftime('%Y%m%d_%H%M%S')
 SHORT_TAG  = "".join(w[0].upper() for w in ASSIGNEE.split())
