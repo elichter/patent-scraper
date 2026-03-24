@@ -148,8 +148,6 @@ See [EXAMPLES.md](EXAMPLES.md) for practical walkthroughs including:
 - Monitoring a portfolio over time with incremental runs
 - Technology clustering with TF-IDF + KMeans (MIT portfolio)
 - Semantic patent similarity search using embeddings
-- Technology clustering with TF-IDF + KMeans (MIT portfolio)
-- Semantic patent similarity search using embeddings
 
 ---
 
