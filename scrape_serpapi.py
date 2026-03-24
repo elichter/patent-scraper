@@ -32,6 +32,7 @@ def install_requirements():
         "openpyxl":       "openpyxl",
         "pyyaml":         "yaml",
         "beautifulsoup4": "bs4",
+        "matplotlib":     "matplotlib",
     }
     import importlib.util
     missing = [pkg for pkg, imp in pkg_map.items() if not importlib.util.find_spec(imp)]
