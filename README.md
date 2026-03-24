@@ -130,15 +130,28 @@ You will be prompted for:
 - Inventor and co-assignee data is cached locally in `patent_cache.json` — repeat runs skip HTTP requests for patents already seen, making subsequent runs faster. The cache is shared across searches so running multiple institutions on the same device will reuse cached data
 - `config.yaml`, `patent_cache.json`, and any output directories are excluded from version control via `.gitignore`
 - To install dependencies manually: `pip install -r requirements.txt`
-- **conda users who prefer not to mix pip:** run `conda install requests pandas openpyxl pyyaml beautifulsoup4` before running the script, then answer `n` when prompted about auto-installing packages
+- **conda users who prefer not to mix pip:** run `conda install requests pandas openpyxl pyyaml beautifulsoup4 matplotlib` before running the script, then answer `n` when prompted about auto-installing packages
 
 ---
 
+## Examples
+
+![Grants by Year](grants_by_year.png)
+
+*Sample output: granted patents by year for Thomas Jefferson University (illustrative data)*
+
+See [EXAMPLES.md](EXAMPLES.md) for practical walkthroughs including:
+- University tech transfer searches (Thomas Jefferson University)
+- Handling ambiguous assignee names (Philadelphia University)
+- Large corporate assignees with international filings
+- Loading output into pandas for downstream analysis
+- Monitoring a portfolio over time with incremental runs
+
 ## Technical Deep Dive
 
-For architecture details, extended examples, and potential analytics use cases:
+For architecture details, data source documentation, output format reference, and roadmap:
 
-👉 [github.com/elichter/patent-scraper](https://github.com/elichter/patent-scraper)
+👉 [github.com/elichter/patent-scraper/wiki](https://github.com/elichter/patent-scraper/wiki)
 
 ---
 
