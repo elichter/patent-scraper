@@ -118,7 +118,7 @@ python3 scrape_serpapi.py
 You will be prompted for:
 - **Auto-install missing packages? (y/n)** — enter `y` to have the script check for and install any missing dependencies automatically. Enter `n` if you prefer to manage dependencies yourself — note that the script will error if any required packages are missing.
 - **Assignee name** — e.g. `Thomas Jefferson University`
-- **Start date** — e.g. `20250101` (YYYYMMDD format)
+- **Date filter** — choose between a start date through present (e.g. `20250101`) or a specific date range (e.g. `20230101` to `20251231`)
 - **Parallel fetch? (y/n)** — enter `y` for faster inventor/co-assignee scraping using parallel requests, or `n` for sequential (safer, less likely to be rate-limited). If `y`, you will also be asked how many parallel workers to use (recommended: 3-10, default 5)
 - **Assignee review** — after fetching, the script displays all unique assignee names returned by SerpAPI and asks you to exclude any that do not match your institution (useful for ambiguous names like "Philadelphia University" which may return results from other Philadelphia-based institutions)
 
@@ -129,8 +129,8 @@ You will be prompted for:
 - Typical run uses ~2 API credits (one for granted, one for all activity)
 - Inventor and co-assignee data is cached locally in `patent_cache.json` — repeat runs skip HTTP requests for patents already seen, making subsequent runs faster. The cache is shared across searches so running multiple institutions on the same device will reuse cached data
 - `config.yaml`, `patent_cache.json`, and any output directories are excluded from version control via `.gitignore`
-- To install dependencies manually: `pip install -r requirements.txt`
-- **conda users who prefer not to mix pip:** run `conda install requests pandas openpyxl pyyaml beautifulsoup4 matplotlib` before running the script, then answer `n` when prompted about auto-installing packages
+- To install dependencies manually: `pip install -r requirements.txt` (includes `requests`, `pandas`, `openpyxl`, `pyyaml`, `beautifulsoup4`, `matplotlib`, `scikit-learn`)
+- **conda users who prefer not to mix pip:** run `conda install requests pandas openpyxl pyyaml beautifulsoup4 matplotlib scikit-learn` before running the script, then answer `n` when prompted about auto-installing packages
 
 ---
 
@@ -146,14 +146,26 @@ See [EXAMPLES.md](EXAMPLES.md) for practical walkthroughs including:
 - Large corporate assignees with international filings
 - Loading output into pandas for downstream analysis
 - Monitoring a portfolio over time with incremental runs
-
-## Technical Deep Dive
-
-For architecture details, data source documentation, output format reference, and roadmap:
-
-👉 [github.com/elichter/patent-scraper/wiki](https://github.com/elichter/patent-scraper/wiki)
+- Technology clustering with TF-IDF + KMeans (MIT portfolio)
+- Semantic patent similarity search using embeddings
+- Technology clustering with TF-IDF + KMeans (MIT portfolio)
+- Semantic patent similarity search using embeddings
 
 ---
+
+## Known Limitations
+
+- **Non-US jurisdiction data gaps** — Google Patents does not always index grant dates, priority dates, or co-assignee information for non-US patents (e.g. NZ, AU, some EP filings). These fields may appear as N/A even when the patent is granted.
+- **SerpAPI broad matching** — the assignee filter may return patents from similarly named institutions. The interactive assignee review step mitigates this but manual verification is recommended for ambiguous names.
+- **Data currency** — SerpAPI reflects Google Patents data which may lag official patent office records by days to weeks.
+- **Rate limiting** — parallel fetching may trigger rate limiting from Google Patents. Reduce worker count or switch to sequential mode if you encounter errors.
+
+## Known Limitations
+
+- **Non-US jurisdiction data gaps** — Google Patents does not always index grant dates, priority dates, or co-assignee information for non-US patents (e.g. NZ, AU, some EP filings). These fields may appear as N/A even when the patent is granted.
+- **SerpAPI broad matching** — the assignee filter may return patents from similarly named institutions. The interactive assignee review step mitigates this but manual verification is recommended for ambiguous names.
+- **Data currency** — SerpAPI reflects Google Patents data which may lag official patent office records by days to weeks.
+- **Rate limiting** — parallel fetching may trigger rate limiting from Google Patents. Reduce worker count or switch to sequential mode if you encounter errors.
 
 ## License
 

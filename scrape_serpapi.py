@@ -6,7 +6,7 @@ Produces one Excel file with two sheets:
 Plus a summary txt file.
 
 Free tier: 250 searches/month at serpapi.com
-Install: pip install requests pandas openpyxl pyyaml beautifulsoup4
+Install: pip install requests pandas openpyxl pyyaml beautifulsoup4 matplotlib scikit-learn
 """
 
 import subprocess
@@ -33,6 +33,7 @@ def install_requirements():
         "pyyaml":         "yaml",
         "beautifulsoup4": "bs4",
         "matplotlib":     "matplotlib",
+        "scikit-learn":   "sklearn",
     }
     import importlib.util
     missing = [pkg for pkg, imp in pkg_map.items() if not importlib.util.find_spec(imp)]
@@ -71,16 +72,31 @@ import openpyxl
 from openpyxl.styles import Font
 from datetime import datetime
 
-# Load API key from config.yaml (never commit this file — see config.yaml.example)
+# Load API key from config.yaml
 with open("config.yaml") as f:
     config = yaml.safe_load(f)
 API_KEY = config.get("api_key", "")
 if not API_KEY or API_KEY == "your_serpapi_key_here":
     raise SystemExit("ERROR: Set your SerpAPI key in config.yaml (copy from config.yaml.example)")
 
-ASSIGNEE   = input("Enter assignee name (e.g. Thomas Jefferson University): ").strip()
-AFTER_DATE = input("Enter start date for patent search (YYYYMMDD, e.g. 20250101): ").strip()
-PARALLEL   = input("Fetch inventor/assignee data in parallel? (y/n, faster but may get rate-limited): ").strip().lower() == "y"
+ASSIGNEE = input("Enter assignee name (e.g. Thomas Jefferson University): ").strip()
+
+# Date range or single start date
+print("\nDate filter options:")
+print("  1. From a start date through present (e.g. 20250101)")
+print("  2. Date range (e.g. 20230101 to 20251231)")
+date_choice = input("Choose option (1 or 2): ").strip()
+
+if date_choice == "2":
+    AFTER_DATE  = input("Enter start date (YYYYMMDD): ").strip()
+    BEFORE_DATE = input("Enter end date (YYYYMMDD): ").strip()
+    DATE_LABEL  = f"{AFTER_DATE}_to_{BEFORE_DATE}"
+else:
+    AFTER_DATE  = input("Enter start date (YYYYMMDD): ").strip()
+    BEFORE_DATE = None
+    DATE_LABEL  = AFTER_DATE
+
+PARALLEL = input("Fetch inventor/assignee data in parallel? (y/n, faster but may get rate-limited): ").strip().lower() == "y"
 if PARALLEL:
     try:
         WORKERS = int(input("How many parallel workers? (recommended: 3-10, default 5): ").strip() or "5")
@@ -91,9 +107,9 @@ else:
 
 TIMESTAMP  = datetime.now().strftime('%Y%m%d_%H%M%S')
 SHORT_TAG  = "".join(w[0].upper() for w in ASSIGNEE.split())
-OUTPUT_DIR = f"search_{TIMESTAMP}_{ASSIGNEE.replace(' ', '_')}_{AFTER_DATE}"
+OUTPUT_DIR = f"search_{TIMESTAMP}_{ASSIGNEE.replace(' ', '_')}_{DATE_LABEL}"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
-OUTPUT     = os.path.join(OUTPUT_DIR, f"{SHORT_TAG}_{AFTER_DATE}_patents.xlsx")
+OUTPUT     = os.path.join(OUTPUT_DIR, f"{SHORT_TAG}_{DATE_LABEL}_patents.xlsx")
 ENDPOINT   = "https://serpapi.com/search"
 CACHE_FILE = "patent_cache.json"
 
@@ -116,21 +132,18 @@ def save_cache(cache):
 
 
 # ---------------------------------------------------------------------------
-# Scrape inventors + co-assignees from patent page (one HTTP request per patent)
+# Scrape inventors + co-assignees from patent page
 # ---------------------------------------------------------------------------
 def fetch_patent_details(patent_number, patent_link, serpapi_assignee):
-    """Returns (inventors_str, co_assignees_str) from Google Patents page."""
     try:
         resp = requests.get(patent_link, timeout=15, headers={
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         })
         soup = BeautifulSoup(resp.text, "html.parser")
 
-        # Inventors
         inventors = [tag.get_text(strip=True) for tag in soup.find_all(itemprop="inventor")]
         inv_str   = ", ".join(inventors) if inventors else "N/A"
 
-        # Current Assignees from dt/dd pattern
         assignees = []
         for dt in soup.find_all("dt"):
             if "current assignee" in dt.get_text(strip=True).lower():
@@ -143,14 +156,13 @@ def fetch_patent_details(patent_number, patent_link, serpapi_assignee):
                             assignees.append(text)
                 break
 
-        # Identify TJU by loose match against SerpAPI assignee and input ASSIGNEE
-        def is_tju(scraped, ref):
+        def is_main(scraped, ref):
             s, r = scraped.lower(), ref.lower()
             return s == r or s in r or r in s
 
         co_assignees = [
             a for a in assignees
-            if not is_tju(a, serpapi_assignee) and not is_tju(a, ASSIGNEE)
+            if not is_main(a, serpapi_assignee) and not is_main(a, ASSIGNEE)
         ]
         co_str = ", ".join(co_assignees) if co_assignees else "None"
 
@@ -161,7 +173,7 @@ def fetch_patent_details(patent_number, patent_link, serpapi_assignee):
 
 
 # ---------------------------------------------------------------------------
-# Enrich patents with inventors + co-assignees using cache
+# Enrich patents
 # ---------------------------------------------------------------------------
 def enrich_patents(patents, label=""):
     cache   = load_cache()
@@ -227,6 +239,8 @@ def fetch_page(page, status=None):
         "page":     page,
         "api_key":  API_KEY,
     }
+    if BEFORE_DATE:
+        params["before"] = f"publication:{BEFORE_DATE}"
     if status:
         params["status"] = status
     resp = requests.get(ENDPOINT, params=params, timeout=30)
@@ -300,12 +314,19 @@ def assignee_review(granted, all_patents):
 
     raw = input("\nExclude numbers (or Enter to keep all): ").strip()
     excluded = set()
+    excluded_patents = {}  # track patents per excluded assignee
+
     if raw:
         try:
             for n in raw.split(","):
                 idx = int(n.strip()) - 1
                 if 0 <= idx < len(unique_assignees):
-                    excluded.add(unique_assignees[idx])
+                    name = unique_assignees[idx]
+                    excluded.add(name)
+                    # Collect patents for this excluded assignee
+                    excluded_patents[name] = [
+                        p for p in all_pats if p.get("Assignee", "") == name
+                    ]
         except ValueError:
             print("  Invalid input — keeping all.")
 
@@ -316,7 +337,7 @@ def assignee_review(granted, all_patents):
 
     print(f"  Final: {len(granted)} granted, {len(all_patents)} all activity")
     print("=" * 60)
-    return granted, all_patents
+    return granted, all_patents, excluded_patents
 
 
 # ---------------------------------------------------------------------------
@@ -351,7 +372,7 @@ def save_excel(df_granted, df_all, path):
     print(f"  Sheet 'All Activity': {len(df_all)} patents")
 
 
-def save_summary(df_granted, df_all, granted_raw, all_raw, path):
+def save_summary(df_granted, df_all, granted_raw, all_raw, excluded_patents, path):
     originally_missing = {
         p["Patent Number"] for p in granted_raw
         if p["Patent Number"] not in {x["Patent Number"] for x in all_raw}
@@ -362,7 +383,7 @@ def save_summary(df_granted, df_all, granted_raw, all_raw, path):
     with open(path, "w") as f:
         f.write(f"Patent Search Summary\n")
         f.write(f"Assignee: {ASSIGNEE}\n")
-        f.write(f"After: {AFTER_DATE}\n")
+        f.write(f"Date filter: from {AFTER_DATE}" + (f" to {BEFORE_DATE}" if BEFORE_DATE else " through present") + "\n")
         f.write(f"Generated: {TIMESTAMP}\n")
         f.write("=" * 60 + "\n\n")
 
@@ -395,6 +416,16 @@ def save_summary(df_granted, df_all, granted_raw, all_raw, path):
         else:
             f.write("  None\n")
 
+        # Excluded institutions and their patents
+        f.write(f"\nEXCLUDED INSTITUTIONS ({len(excluded_patents)}):\n")
+        if excluded_patents:
+            for institution, pats in sorted(excluded_patents.items()):
+                f.write(f"\n  {institution} ({len(pats)} patents):\n")
+                for p in pats:
+                    f.write(f"    {p['Patent Number']} | {p['Title'][:70]}\n")
+        else:
+            f.write("  None\n")
+
     print(f"✓ Summary written to {path}")
 
 
@@ -402,8 +433,9 @@ def save_summary(df_granted, df_all, granted_raw, all_raw, path):
 # Main
 # ---------------------------------------------------------------------------
 def scrape():
+    date_desc = f"from {AFTER_DATE}" + (f" to {BEFORE_DATE}" if BEFORE_DATE else " through present")
     print(f"\n=== SerpAPI Google Patents ===")
-    print(f"Assignee: '{ASSIGNEE}', after {AFTER_DATE}, parallel={PARALLEL}\n")
+    print(f"Assignee: '{ASSIGNEE}', {date_desc}, parallel={PARALLEL}\n")
 
     print("--- Query 1: Granted patents ---")
     granted = fetch_all_pages(status="GRANT", label="GRANT")
@@ -413,8 +445,7 @@ def scrape():
     all_patents = fetch_all_pages(status=None, label="ALL")
     all_patents = enrich_patents(all_patents, label="All Activity")
 
-    # Interactive assignee review
-    granted, all_patents = assignee_review(granted, all_patents)
+    granted, all_patents, excluded_patents = assignee_review(granted, all_patents)
 
     if granted or all_patents:
         df_granted = prepare_df(granted) if granted else pd.DataFrame()
@@ -428,8 +459,8 @@ def scrape():
         df_all = prepare_df(merged) if merged else pd.DataFrame()
 
         save_excel(df_granted, df_all, OUTPUT)
-        summary_path = os.path.join(OUTPUT_DIR, f"{SHORT_TAG}_{AFTER_DATE}_summary.txt")
-        save_summary(df_granted, df_all, granted, all_patents, summary_path)
+        summary_path = os.path.join(OUTPUT_DIR, f"{SHORT_TAG}_{DATE_LABEL}_summary.txt")
+        save_summary(df_granted, df_all, granted, all_patents, excluded_patents, summary_path)
 
     print(f"\nAPI credits used this run: {api_credits_used}")
     print(f"Check live balance at: https://serpapi.com/dashboard")

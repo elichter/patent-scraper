@@ -4,3 +4,4 @@ openpyxl
 pyyaml
 beautifulsoup4
 matplotlib
+scikit-learn
