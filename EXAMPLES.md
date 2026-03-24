@@ -203,3 +203,103 @@ The cache ensures inventors and co-assignees for previously seen patents are not
 - **Ambiguous names** (city-based institutions, common words) — always review the assignee list carefully
 - **Non-English patents** — Japanese, Korean, and Chinese assignee names are expected and correct; do not exclude them unless you are certain they refer to a different entity
 - **Cache management** — `patent_cache.json` accumulates over time. Delete it only if you suspect stale data
+---
+
+## Example 6: Technology Clustering with TF-IDF + KMeans
+
+Group a patent portfolio by technology area automatically using TF-IDF vectorization and KMeans clustering. Useful for landscape mapping and identifying R&D focus areas.
+
+Requires: `pip install scikit-learn matplotlib`
+
+```python
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+
+df = pd.read_excel("search_.../MIT_20200101_patents.xlsx", sheet_name="All Activity")
+df = df[df["Abstract"].notna() & (df["Abstract"] != "N/A")]
+
+# Vectorize abstracts
+vectorizer = TfidfVectorizer(max_features=500, stop_words="english", ngram_range=(1, 2))
+X = vectorizer.fit_transform(df["Abstract"])
+
+# Cluster into 4 technology groups
+kmeans = KMeans(n_clusters=4, random_state=42, n_init=10)
+df["Cluster"] = kmeans.fit_predict(X)
+
+# Reduce to 2D for visualization
+pca = PCA(n_components=2, random_state=42)
+coords = pca.fit_transform(X.toarray())
+df["PC1"], df["PC2"] = coords[:, 0], coords[:, 1]
+
+# Plot
+fig, ax = plt.subplots(figsize=(11, 7))
+for cluster_id in df["Cluster"].unique():
+    mask = df["Cluster"] == cluster_id
+    ax.scatter(df[mask]["PC1"], df[mask]["PC2"], label=f"Cluster {cluster_id}", s=100, alpha=0.8)
+
+ax.set_title("Patent Portfolio Clustering by Technology Area", fontsize=13, fontweight="bold")
+ax.set_xlabel("Principal Component 1")
+ax.set_ylabel("Principal Component 2")
+ax.legend(title="Technology Cluster")
+plt.tight_layout()
+plt.savefig("patent_clustering.png", dpi=150)
+plt.show()
+```
+
+![Patent Clustering](patent_clustering.png)
+
+*Sample output: 20 patents from a mixed-technology portfolio clustered into AI/ML, Biotechnology, Semiconductors, and Clean Energy groups (illustrative data)*
+
+---
+
+## Example 7: Semantic Similarity Search with Embeddings
+
+Find patents most similar to a technology description using TF-IDF cosine similarity. Useful for prior art searches and identifying related work across a portfolio.
+
+Requires: `pip install scikit-learn matplotlib`
+
+```python
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+import matplotlib.pyplot as plt
+
+df = pd.read_excel("search_.../MIT_20200101_patents.xlsx", sheet_name="All Activity")
+df = df[df["Abstract"].notna() & (df["Abstract"] != "N/A")].reset_index(drop=True)
+
+# Your technology query
+query = "solid-state battery energy storage electrolyte"
+
+# Vectorize abstracts + query together
+corpus = df["Abstract"].tolist() + [query]
+vectorizer = TfidfVectorizer(max_features=500, stop_words="english")
+X = vectorizer.fit_transform(corpus)
+
+# Compute similarity between query and all patents
+query_vec = X[-1]
+patent_vecs = X[:-1]
+similarities = cosine_similarity(query_vec, patent_vecs).flatten()
+df["Similarity"] = similarities
+
+# Show top 10
+top = df.nlargest(10, "Similarity")[["Patent Number", "Title", "Similarity"]]
+
+# Plot
+fig, ax = plt.subplots(figsize=(12, 6))
+colors = ["mediumseagreen" if s >= 0.5 else "steelblue" if s >= 0.2 else "lightgray"
+          for s in top["Similarity"]]
+ax.barh(top["Title"].str[:50], top["Similarity"], color=colors, edgecolor="white")
+ax.set_xlabel("Cosine Similarity Score")
+ax.set_title(f'Patent Similarity Search\nQuery: "{query}"', fontweight="bold")
+ax.axvline(x=0.5, color="gray", linestyle="--", alpha=0.5)
+plt.tight_layout()
+plt.savefig("patent_similarity.png", dpi=150)
+plt.show()
+```
+
+![Patent Similarity Search](patent_similarity.png)
+
+*Sample output: patents ranked by semantic similarity to the query "solid-state battery energy storage electrolyte" (illustrative data)*
