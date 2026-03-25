@@ -112,7 +112,7 @@ df["Publication Date"] = pd.to_datetime(df["Publication Date"], errors="coerce")
 
 ### Chart 1: Grants by Year
 
-![Grants by Year](grants_by_year.png)
+![Grants by Year](images/grants_by_year.png)
 
 ```python
 grants = df[df["Grant Date"].notna()]
@@ -131,7 +131,7 @@ plt.show()
 
 ### Chart 2: Top Co-Assignees
 
-![Top Co-Assignees](top_co_assignees.png)
+![Top Co-Assignees](images/top_co_assignees.png)
 
 ```python
 co = df[df["Co-Assignees"].notna() & (df["Co-Assignees"] != "None")]
@@ -154,7 +154,7 @@ plt.show()
 
 ### Chart 3: Activity by Jurisdiction Over Time
 
-![Activity by Jurisdiction](activity_by_jurisdiction.png)
+![Activity by Jurisdiction](images/activity_by_jurisdiction.png)
 
 ```python
 df["Year"] = df["Publication Date"].dt.year
@@ -201,7 +201,7 @@ plt.savefig("wordcloud_TJU.png", dpi=150)
 plt.show()
 ```
 
-![Patent Abstract Word Cloud](wordcloud_TJU.png)
+![Patent Abstract Word Cloud](images/wordcloud_TJU.png)
 
 *Sample output: most frequent terms across Thomas Jefferson University patent abstracts (illustrative data, 2025)*
 
@@ -258,7 +258,7 @@ plt.savefig("patent_clustering.png", dpi=150)
 plt.show()
 ```
 
-![Patent Clustering](patent_clustering.png)
+![Patent Clustering](images/patent_clustering.png)
 
 *Sample output: 43 patents from MIT's portfolio across 8 technology clusters with natural overlap between related fields (illustrative data, 2020–2025)*
 
@@ -298,7 +298,7 @@ plt.savefig("patent_similarity.png", dpi=150)
 plt.show()
 ```
 
-![Patent Similarity Search](patent_similarity.png)
+![Patent Similarity Search](images/patent_similarity.png)
 
 *Sample output: Stanford University patents ranked by semantic similarity to the query "solid-state battery energy storage electrolyte" (illustrative data, 2020–2025)*
 

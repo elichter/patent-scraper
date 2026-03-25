@@ -136,7 +136,7 @@ You will be prompted for:
 
 ## Examples
 
-![Grants by Year](grants_by_year.png)
+![Grants by Year](images/grants_by_year.png)
 
 *Sample output: granted patents by year for Thomas Jefferson University (illustrative data)*
 
