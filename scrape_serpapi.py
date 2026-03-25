@@ -78,7 +78,8 @@ from datetime import datetime
 # Load API key from config.yaml
 with open("config.yaml") as f:
     config = yaml.safe_load(f)
-API_KEY = config.get("api_key", "")
+API_KEY       = config.get("api_key", "")
+MONTHLY_LIMIT = config.get("monthly_limit", 250)
 if not API_KEY or API_KEY == "your_serpapi_key_here":
     raise SystemExit("ERROR: Set your SerpAPI key in config.yaml (copy from config.yaml.example)")
 
@@ -135,6 +136,39 @@ def save_cache(cache):
 
 
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Monthly usage tracker
+# ---------------------------------------------------------------------------
+USAGE_FILE = "usage_tracker.json"
+
+def load_usage():
+    current_month = datetime.now().strftime("%Y-%m")
+    try:
+        with open(USAGE_FILE) as f:
+            data = json.load(f)
+        if data.get("month") != current_month:
+            data = {"month": current_month, "credits_used": 0}
+    except FileNotFoundError:
+        data = {"month": current_month, "credits_used": 0}
+    return data
+
+def save_usage(data):
+    with open(USAGE_FILE, "w") as f:
+        json.dump(data, f, indent=2)
+
+def display_usage(credits_this_run):
+    usage = load_usage()
+    usage["credits_used"] += credits_this_run
+    save_usage(usage)
+    remaining = max(0, MONTHLY_LIMIT - usage["credits_used"])
+    print(f"\nAPI credits used this run:    {credits_this_run}")
+    print(f"API credits used this month:  {usage['credits_used']} / {MONTHLY_LIMIT}")
+    print(f"Credits remaining this month: {remaining}")
+    if remaining < 20:
+        print(f"  \u26a0\ufe0f  Warning: only {remaining} credits remaining this month.")
+    print(f"Check live balance at: https://serpapi.com/dashboard")
+
+
 # Scrape inventors + co-assignees from patent page
 # ---------------------------------------------------------------------------
 def fetch_patent_details(patent_number, patent_link, serpapi_assignee):
@@ -279,7 +313,7 @@ def fetch_all_pages(status=None, label=""):
                 "Priority Date":    r.get("priority_date", "N/A"),
                 "Inventors":        r.get("inventor", "N/A"),
                 "Assignee":         r.get("assignee", "N/A"),
-                "Co-Assignees":     "None",
+                "Co-Assignees":     "None",  # always string, never NaN
                 "Abstract":         r.get("snippet", "N/A"),
                 "Link":             r.get("patent_link", "N/A"),
             })
@@ -380,6 +414,9 @@ def prepare_df(patents):
         **{col: "first" for col in df.columns if col not in ["Patent Number", "Title"]}
     })
     df = df.sort_values("Publication Date", ascending=True)
+    # Normalize Co-Assignees — ensure NaN becomes string "None"
+    if "Co-Assignees" in df.columns:
+        df["Co-Assignees"] = df["Co-Assignees"].fillna("None").replace("", "None")
     cols = ["Title", "Patent Number", "Publication Date", "Grant Date",
             "Filing Date", "Priority Date", "Inventors", "Assignee",
             "Co-Assignees", "Abstract", "Link"]
@@ -424,6 +461,7 @@ def save_summary(df_granted, df_all, granted_raw, all_raw, excluded_patents, pat
         f.write(f"\nALL ACTIVITY ({len(df_all)} patents):\n")
         for _, row in df_all.iterrows():
             status = "Granted" if pd.notna(row.get("Grant Date")) and str(row.get("Grant Date")) not in ("NaT", "nan", "N/A", "") else "Application"
+            # Normalize co-assignees — replace NaN with string "None"
             f.write(f"  [{status}] {row['Patent Number']} | {row.get('Publication Date','N/A')} | {row['Title'][:80]}\n")
 
         f.write(f"\nDUPLICATE TITLES IN GRANTED ({len(granted_dupes)}):\n")
@@ -492,8 +530,7 @@ def scrape():
         summary_path = os.path.join(OUTPUT_DIR, f"{SHORT_TAG}_{DATE_LABEL}_summary.txt")
         save_summary(df_granted, df_all, granted, all_patents, excluded_patents, summary_path)
 
-    print(f"\nAPI credits used this run: {api_credits_used}")
-    print(f"Check live balance at: https://serpapi.com/dashboard")
+    display_usage(api_credits_used)
 
 
 if __name__ == "__main__":

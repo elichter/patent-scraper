@@ -126,7 +126,7 @@ You will be prompted for:
 
 ## Notes
 
-- Typical run uses ~2 API credits (one for granted, one for all activity)
+- Typical run uses ~2 API credits (one for granted, one for all activity). The script tracks monthly usage locally in `usage_tracker.json` and auto-resets each month — displaying credits used this run, total used this month, and estimated remaining against your plan limit (default 250 for free tier, configurable in `config.yaml`). If you upgrade to a paid plan, update `monthly_limit` in `config.yaml` and the warning threshold adjusts automatically
 - **Large assignees** (Fortune 500, major universities) may return 100+ results — use parallel fetch with 5-10 workers
 - **Ambiguous names** (city-based institutions, common words) — always review the assignee list carefully
 - **Non-English patents** — Japanese, Korean, and Chinese assignee names are expected and correct; do not exclude them unless you are certain they refer to a different entity
