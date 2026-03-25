@@ -127,6 +127,10 @@ You will be prompted for:
 ## Notes
 
 - Typical run uses ~2 API credits (one for granted, one for all activity)
+- **Large assignees** (Fortune 500, major universities) may return 100+ results — use parallel fetch with 5-10 workers
+- **Ambiguous names** (city-based institutions, common words) — always review the assignee list carefully
+- **Non-English patents** — Japanese, Korean, and Chinese assignee names are expected and correct; do not exclude them unless you are certain they refer to a different entity
+- **Cache management** — `patent_cache.json` accumulates over time. Delete it only if you suspect stale data
 - Inventor and co-assignee data is cached locally in `patent_cache.json` — repeat runs skip HTTP requests for patents already seen, making subsequent runs faster. The cache is shared across searches so running multiple institutions on the same device will reuse cached data
 - `config.yaml`, `patent_cache.json`, and any output directories are excluded from version control via `.gitignore`
 - To install dependencies manually: `pip install -r requirements.txt` (includes `requests`, `pandas`, `openpyxl`, `pyyaml`, `beautifulsoup4`, `matplotlib`, `scikit-learn`, `wordcloud`)

@@ -337,11 +337,4 @@ March run:     start date = 20250301
 
 **API credits used:** ~2 per run × 3 runs = 6 credits (well within the 250/month free tier)
 
----
 
-## Tips
-
-- **Large assignees** (Fortune 500, major universities) may return 100+ results — use parallel fetch with 5-10 workers
-- **Ambiguous names** (city-based institutions, common words) — always review the assignee list carefully
-- **Non-English patents** — Japanese, Korean, and Chinese assignee names are expected and correct; do not exclude them unless you are certain they refer to a different entity
-- **Cache management** — `patent_cache.json` accumulates over time. Delete it only if you suspect stale data
