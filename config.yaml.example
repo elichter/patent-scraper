@@ -4,3 +4,6 @@
 # 3. Never commit config.yaml to GitHub — it's in .gitignore
 
 api_key: "your_serpapi_key_here"
+# Monthly search credit limit (default: 250 for free tier)
+# Update this if you are on a paid plan
+monthly_limit: 250
