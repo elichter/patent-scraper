@@ -164,6 +164,12 @@ Walkthroughs include:
 
 ---
 
+## Contributing
+
+Contributions are welcome. Please fork the repo and submit a pull request.
+
+This project uses [git-cliff](https://github.com/orhun/git-cliff) for changelog generation — see `generate_changelog.sh` for the release workflow.
+
 ## License
 
 MIT
