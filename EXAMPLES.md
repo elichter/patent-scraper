@@ -134,7 +134,7 @@ plt.show()
 ![Top Co-Assignees](images/top_co_assignees.png)
 
 ```python
-co = df[df["Co-Assignees"].notna() & (df["Co-Assignees"] != "None")]
+co = df[df["Co-Assignees"].notna() & ~df["Co-Assignees"].isin(["None", "NaN", "nan"])]
 
 from collections import Counter
 all_co = []
