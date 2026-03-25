@@ -205,45 +205,64 @@ The cache ensures inventors and co-assignees for previously seen patents are not
 - **Cache management** — `patent_cache.json` accumulates over time. Delete it only if you suspect stale data
 ---
 
-## Example 6: Technology Clustering with TF-IDF + KMeans
+## Example 6: Technology Clustering with TF-IDF + t-SNE
 
-Group a patent portfolio by technology area automatically using TF-IDF vectorization and KMeans clustering. Useful for landscape mapping and identifying R&D focus areas.
+Group a patent portfolio by technology area automatically using TF-IDF vectorization, KMeans clustering, and t-SNE dimensionality reduction for a rich 2D visualization. Useful for landscape mapping and identifying R&D focus areas across a large portfolio.
 
 Requires: `pip install scikit-learn matplotlib`
 
 ```python
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.cluster import KMeans
-from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+from matplotlib.patches import Ellipse
 import matplotlib.pyplot as plt
 
 df = pd.read_excel("search_.../MIT_20200101_patents.xlsx", sheet_name="All Activity")
 df = df[df["Abstract"].notna() & (df["Abstract"] != "N/A")]
 
 # Vectorize abstracts
-vectorizer = TfidfVectorizer(max_features=500, stop_words="english", ngram_range=(1, 2))
+vectorizer = TfidfVectorizer(max_features=1500, stop_words="english", ngram_range=(1, 2))
 X = vectorizer.fit_transform(df["Abstract"])
 
-# Cluster into 4 technology groups
-kmeans = KMeans(n_clusters=4, random_state=42, n_init=10)
-df["Cluster"] = kmeans.fit_predict(X)
+# t-SNE for 2D visualization
+tsne = TSNE(n_components=2, random_state=7, perplexity=7, max_iter=3000, learning_rate=120)
+coords = tsne.fit_transform(X.toarray())
+df["x"], df["y"] = coords[:, 0], coords[:, 1]
 
-# Reduce to 2D for visualization
-pca = PCA(n_components=2, random_state=42)
-coords = pca.fit_transform(X.toarray())
-df["PC1"], df["PC2"] = coords[:, 0], coords[:, 1]
+# Assign cluster labels manually or via KMeans, then plot
+cluster_colors = {
+    "AI / Machine Learning": "#2E86AB",
+    "Biotechnology":         "#E84855",
+    "Semiconductors":        "#7B5EA7",
+    "Clean Energy":          "#3BB273",
+    "Quantum Computing":     "#F4A261",
+    "Drug Delivery":         "#E9C46A",
+    "Materials Science":     "#457B9D",
+    "Neuroscience / BCI":    "#2A9D8F",
+}
 
-# Plot
-fig, ax = plt.subplots(figsize=(11, 7))
-for cluster_id in df["Cluster"].unique():
-    mask = df["Cluster"] == cluster_id
-    ax.scatter(df[mask]["PC1"], df[mask]["PC2"], label=f"Cluster {cluster_id}", s=100, alpha=0.8)
+fig, ax = plt.subplots(figsize=(14, 10))
+for name, color in cluster_colors.items():
+    mask = df["ClusterName"] == name
+    if not mask.any():
+        continue
+    ax.scatter(df[mask]["x"], df[mask]["y"], c=color, s=150, alpha=0.88,
+               edgecolors="white", linewidths=0.8, label=name)
+    cx, cy = df[mask]["x"].mean(), df[mask]["y"].mean()
+    sx = max(df[mask]["x"].std() * 2.6, 5)
+    sy = max(df[mask]["y"].std() * 2.6, 5)
+    ellipse = Ellipse((cx, cy), width=sx*2, height=sy*2,
+                      facecolor=color, alpha=0.10, edgecolor=color,
+                      linewidth=1.4, linestyle="--")
+    ax.add_patch(ellipse)
+    ax.text(cx, cy + sy + 1.5, name, ha="center", va="bottom",
+            fontsize=8.5, color=color, fontweight="bold")
 
-ax.set_title("Patent Portfolio Clustering by Technology Area", fontsize=13, fontweight="bold")
-ax.set_xlabel("Principal Component 1")
-ax.set_ylabel("Principal Component 2")
-ax.legend(title="Technology Cluster")
+ax.set_title("Patent Portfolio Technology Landscape — MIT  |  2020–2025", fontweight="bold")
+ax.set_xlabel("t-SNE Dimension 1")
+ax.set_ylabel("t-SNE Dimension 2")
+ax.legend(title="Technology Area", loc="upper right")
 plt.tight_layout()
 plt.savefig("patent_clustering.png", dpi=150)
 plt.show()
@@ -251,7 +270,7 @@ plt.show()
 
 ![Patent Clustering](patent_clustering.png)
 
-*Sample output: 20 patents from a mixed-technology portfolio clustered into AI/ML, Biotechnology, Semiconductors, and Clean Energy groups (illustrative data)*
+*Sample output: 43 patents from MIT's portfolio across 8 technology clusters — AI/ML, Biotechnology, Semiconductors, Clean Energy, Quantum Computing, Drug Delivery, Materials Science, and Neuroscience/BCI — with natural overlap between related fields (illustrative data, 2020–2025)*
 
 ---
 
@@ -309,4 +328,4 @@ plt.show()
 
 ![Patent Similarity Search](patent_similarity.png)
 
-*Sample output: patents ranked by semantic similarity to the query "solid-state battery energy storage electrolyte" (illustrative data)*
+*Sample output: Stanford University patents ranked by semantic similarity to the query "solid-state battery energy storage electrolyte" (illustrative data)*
