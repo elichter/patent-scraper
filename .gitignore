@@ -5,6 +5,9 @@ config.yaml
 patent_cache.json
 inventor_cache.json
 
+# Monthly usage tracker — stays local
+usage_tracker.json
+
 # Proxy list
 proxies.txt
 
