@@ -333,7 +333,7 @@ March run:     start date = 20250301
   API credits used: 2
 ```
 
-*Note: counts are cumulative — each run searches from the start date through present, so later runs include all prior activity.*
+*Note: counts are cumulative — each run in this example searches from the start date through present, so later runs include all prior activity.*
 
 **API credits used:** ~2 per run × 3 runs = 6 credits (well within the 250/month free tier)
 
