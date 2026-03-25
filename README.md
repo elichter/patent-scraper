@@ -144,10 +144,8 @@ See [EXAMPLES.md](EXAMPLES.md) for practical walkthroughs including:
 - University tech transfer searches (Thomas Jefferson University)
 - Handling ambiguous assignee names (Philadelphia University)
 - Large corporate assignees with international filings
-- Loading output into pandas for downstream analysis
-- Monitoring a portfolio over time with incremental runs
-- Technology clustering with TF-IDF + KMeans (MIT portfolio)
-- Semantic patent similarity search using embeddings
+- Downstream analysis and visualization: grants by year, co-assignees, jurisdiction activity, word cloud, technology clustering (t-SNE), and semantic similarity search
+- Monitoring a patent portfolio over time with incremental runs
 
 ---
 

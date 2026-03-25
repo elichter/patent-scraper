@@ -201,6 +201,10 @@ plt.savefig("wordcloud_TJU.png", dpi=150)
 plt.show()
 ```
 
+![Patent Abstract Word Cloud](wordcloud_TJU.png)
+
+*Sample output: most frequent terms across Thomas Jefferson University patent abstracts (illustrative data, 2025)*
+
 ### Chart 5: Technology Clustering with TF-IDF + t-SNE
 
 Group patents by technology area using TF-IDF vectorization and t-SNE dimensionality reduction. Useful for landscape mapping and identifying R&D focus areas.
