@@ -153,7 +153,7 @@ See [EXAMPLES.md](EXAMPLES.md) for practical walkthroughs including:
 
 ## Known Limitations
 
-- **Non-US jurisdiction data gaps** — Google Patents does not always index grant dates, priority dates, or co-assignee information for non-US patents (e.g. NZ, AU, some EP filings). These fields may appear as N/A even when the patent is granted.
+- **Non-US jurisdiction data gaps** — Google Patents does not always index grant dates, priority dates, or co-assignee information for some non-US patents (e.g. NZ, AU, some EP filings). These fields may appear as N/A even when the patent is granted.
 - **SerpAPI broad matching** — the assignee filter may return patents from similarly named institutions. The interactive assignee review step mitigates this but manual verification is recommended for ambiguous names.
 - **Data currency** — SerpAPI reflects Google Patents data which may lag official patent office records by days to weeks.
 - **Rate limiting** — parallel fetching may trigger rate limiting from Google Patents. Reduce worker count or switch to sequential mode if you encounter errors.
