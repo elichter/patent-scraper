@@ -295,6 +295,13 @@ ax.barh(top["Title"].str[:50], top["Similarity"], color=colors, edgecolor="white
 ax.set_xlabel("Cosine Similarity Score")
 ax.set_title(f'Patent Similarity Search\nQuery: "{query}"', fontweight="bold")
 ax.axvline(x=0.5, color="gray", linestyle="--", alpha=0.5)
+
+import matplotlib.patches as mpatches
+high = mpatches.Patch(color="mediumseagreen", label="High similarity (>=0.5)")
+med  = mpatches.Patch(color="steelblue",      label="Moderate (0.2-0.5)")
+low  = mpatches.Patch(color="lightgray",      label="Low (<0.2)")
+ax.legend(handles=[high, med, low], loc="upper right", framealpha=0.7)
+
 plt.tight_layout()
 plt.savefig("patent_similarity.png", dpi=150)
 plt.show()

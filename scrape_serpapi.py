@@ -14,6 +14,8 @@ import sys
 import os
 import time
 import json
+import threading
+import sys as _sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Python version check
@@ -312,9 +314,37 @@ def assignee_review(granted, all_patents):
     for i, a in enumerate(unique_assignees, 1):
         print(f"  {i}. {a}")
 
-    raw = input("\nExclude numbers (or Enter to keep all): ").strip()
+    # Countdown timer — auto-proceeds with all assignees after 30s if unattended
+    TIMEOUT = 30
+    user_input = []
+    input_event = threading.Event()
+
+    def get_input():
+        try:
+            val = input("\nExclude numbers (or Enter to keep all): ").strip()
+            user_input.append(val)
+        except Exception:
+            user_input.append("")
+        input_event.set()
+
+    input_thread = threading.Thread(target=get_input, daemon=True)
+    input_thread.start()
+
+    for remaining in range(TIMEOUT, 0, -1):
+        if input_event.is_set():
+            break
+        print(f"\r  Auto-proceeding with all assignees in {remaining}s... (type to cancel)  ", end="", flush=True)
+        time.sleep(1)
+
+    if not input_event.is_set():
+        print(f"\r  No response — proceeding with all assignees.                              ")
+        raw = ""
+    else:
+        print()
+        raw = user_input[0] if user_input else ""
+
     excluded = set()
-    excluded_patents = {}  # track patents per excluded assignee
+    excluded_patents = {}
 
     if raw:
         try:
@@ -323,7 +353,6 @@ def assignee_review(granted, all_patents):
                 if 0 <= idx < len(unique_assignees):
                     name = unique_assignees[idx]
                     excluded.add(name)
-                    # Collect patents for this excluded assignee
                     excluded_patents[name] = [
                         p for p in all_pats if p.get("Assignee", "") == name
                     ]

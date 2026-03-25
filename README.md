@@ -30,7 +30,7 @@ The output is designed for immediate use in Excel, data science workflows, or st
 ## Key Features
 
 - Search any assignee across global patent systems (US, WO, EP, JP, CN, etc.)
-- Filter by publication date (from a specified start date through present)
+- Filter by publication date (from a specified start date through present, or a specific date range)
 - Dual dataset output:
   - **Granted patents only**
   - **All activity (grants + applications)**
@@ -120,7 +120,7 @@ You will be prompted for:
 - **Assignee name** — e.g. `Thomas Jefferson University`
 - **Date filter** — choose between a start date through present (e.g. `20250101`) or a specific date range (e.g. `20230101` to `20251231`)
 - **Parallel fetch? (y/n)** — enter `y` for faster inventor/co-assignee scraping using parallel requests, or `n` for sequential (safer, less likely to be rate-limited). If `y`, you will also be asked how many parallel workers to use (recommended: 3-10, default 5)
-- **Assignee review** — after fetching, the script displays all unique assignee names returned by SerpAPI and asks you to exclude any that do not match your institution (useful for ambiguous names like "Philadelphia University" which may return results from other Philadelphia-based institutions)
+- **Assignee review** — after fetching, the script displays all unique assignee names returned by SerpAPI and asks you to exclude any that do not match your institution. A 30-second countdown timer auto-proceeds with all assignees if left unattended (useful for scheduled or unattended runs)
 
 ---
 
@@ -148,8 +148,6 @@ See [EXAMPLES.md](EXAMPLES.md) for practical walkthroughs including:
 - Monitoring a portfolio over time with incremental runs
 - Technology clustering with TF-IDF + KMeans (MIT portfolio)
 - Semantic patent similarity search using embeddings
-- Technology clustering with TF-IDF + KMeans (MIT portfolio)
-- Semantic patent similarity search using embeddings
 
 ---
 
@@ -160,12 +158,7 @@ See [EXAMPLES.md](EXAMPLES.md) for practical walkthroughs including:
 - **Data currency** — SerpAPI reflects Google Patents data which may lag official patent office records by days to weeks.
 - **Rate limiting** — parallel fetching may trigger rate limiting from Google Patents. Reduce worker count or switch to sequential mode if you encounter errors.
 
-## Known Limitations
-
-- **Non-US jurisdiction data gaps** — Google Patents does not always index grant dates, priority dates, or co-assignee information for non-US patents (e.g. NZ, AU, some EP filings). These fields may appear as N/A even when the patent is granted.
-- **SerpAPI broad matching** — the assignee filter may return patents from similarly named institutions. The interactive assignee review step mitigates this but manual verification is recommended for ambiguous names.
-- **Data currency** — SerpAPI reflects Google Patents data which may lag official patent office records by days to weeks.
-- **Rate limiting** — parallel fetching may trigger rate limiting from Google Patents. Reduce worker count or switch to sequential mode if you encounter errors.
+---
 
 ## License
 
