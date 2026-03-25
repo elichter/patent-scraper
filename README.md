@@ -140,16 +140,18 @@ You will be prompted for:
 
 ## Examples
 
+> 📊 **See [EXAMPLES.md](EXAMPLES.md) for full walkthroughs with charts, ML analysis, and sample outputs.**
+
 ![Grants by Year](images/grants_by_year.png)
 
 *Sample output: granted patents by year for Thomas Jefferson University (illustrative data)*
 
 See [EXAMPLES.md](EXAMPLES.md) for practical walkthroughs including:
-- University tech transfer searches (Thomas Jefferson University)
-- Handling ambiguous assignee names (Philadelphia University)
-- Large corporate assignees with international filings
-- Downstream analysis and visualization: grants by year, co-assignees, jurisdiction activity, word cloud, technology clustering (t-SNE), and semantic similarity search
-- Monitoring a patent portfolio over time with incremental runs
+- [University tech transfer searches](EXAMPLES.md#example-1-university-tech-transfer--thomas-jefferson-university) (Thomas Jefferson University)
+- [Handling ambiguous assignee names](EXAMPLES.md#example-2-ambiguous-assignee-name--philadelphia-university) (Philadelphia University)
+- [Large corporate assignees with international filings](EXAMPLES.md#example-3-corporate-assignee--international-search)
+- [Downstream analysis and visualization](EXAMPLES.md#example-4-downstream-analysis-and-visualization): grants by year, co-assignees, jurisdiction activity, word cloud, technology clustering (t-SNE), and semantic similarity search
+- [Monitoring a patent portfolio over time](EXAMPLES.md#example-5-monitoring-a-patent-portfolio-over-time) with incremental runs
 
 ---
 
