@@ -36,6 +36,7 @@ def install_requirements():
         "beautifulsoup4": "bs4",
         "matplotlib":     "matplotlib",
         "scikit-learn":   "sklearn",
+        "wordcloud":      "wordcloud",
     }
     import importlib.util
     missing = [pkg for pkg, imp in pkg_map.items() if not importlib.util.find_spec(imp)]

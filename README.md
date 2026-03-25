@@ -129,8 +129,8 @@ You will be prompted for:
 - Typical run uses ~2 API credits (one for granted, one for all activity)
 - Inventor and co-assignee data is cached locally in `patent_cache.json` — repeat runs skip HTTP requests for patents already seen, making subsequent runs faster. The cache is shared across searches so running multiple institutions on the same device will reuse cached data
 - `config.yaml`, `patent_cache.json`, and any output directories are excluded from version control via `.gitignore`
-- To install dependencies manually: `pip install -r requirements.txt` (includes `requests`, `pandas`, `openpyxl`, `pyyaml`, `beautifulsoup4`, `matplotlib`, `scikit-learn`)
-- **conda users who prefer not to mix pip:** run `conda install requests pandas openpyxl pyyaml beautifulsoup4 matplotlib scikit-learn` before running the script, then answer `n` when prompted about auto-installing packages
+- To install dependencies manually: `pip install -r requirements.txt` (includes `requests`, `pandas`, `openpyxl`, `pyyaml`, `beautifulsoup4`, `matplotlib`, `scikit-learn`, `wordcloud`)
+- **conda users who prefer not to mix pip:** run `conda install requests pandas openpyxl pyyaml beautifulsoup4 matplotlib scikit-learn && pip install wordcloud` before running the script, then answer `n` when prompted about auto-installing packages
 
 ---
 
@@ -153,7 +153,7 @@ See [EXAMPLES.md](EXAMPLES.md) for practical walkthroughs including:
 
 ## Known Limitations
 
-- **Non-US jurisdiction data gaps** — Google Patents does not always index grant dates, priority dates, or co-assignee information for some non-US patents (e.g. NZ, AU, some EP filings). These fields may appear as N/A even when the patent is granted.
+- **Non-US jurisdiction data gaps** — Google Patents does not always index grant dates, priority dates, or co-assignee information for non-US patents (e.g. NZ, AU, some EP filings). These fields may appear as N/A even when the patent is granted.
 - **SerpAPI broad matching** — the assignee filter may return patents from similarly named institutions. The interactive assignee review step mitigates this but manual verification is recommended for ambiguous names.
 - **Data currency** — SerpAPI reflects Google Patents data which may lag official patent office records by days to weeks.
 - **Rate limiting** — parallel fetching may trigger rate limiting from Google Patents. Reduce worker count or switch to sequential mode if you encounter errors.

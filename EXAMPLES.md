@@ -97,7 +97,9 @@ Workers: 8
 
 ## Example 4: Downstream Analysis and Visualization
 
-Load the Excel output into pandas for analysis and visualization. Requires `matplotlib` (`pip install matplotlib`).
+Load the Excel output into pandas for analysis and visualization.
+
+Requires: `pip install matplotlib scikit-learn wordcloud`
 
 ```python
 import pandas as pd
@@ -134,7 +136,6 @@ plt.show()
 ```python
 co = df[df["Co-Assignees"].notna() & (df["Co-Assignees"] != "None")]
 
-# Split multi-value co-assignee cells and count
 from collections import Counter
 all_co = []
 for val in co["Co-Assignees"]:
@@ -173,64 +174,49 @@ plt.savefig("activity_by_jurisdiction.png", dpi=150)
 plt.show()
 ```
 
-### Keyword Filtering
+### Chart 4: Patent Abstract Word Cloud
+
+Visualize the most frequent terms across all patent abstracts — larger words appear more often. Useful for quickly identifying a portfolio's core technology themes.
 
 ```python
-# Filter by keyword in title
-crispr = df[df["Title"].str.contains("CRISPR|gene edit", case=False, na=False)]
-print(f"CRISPR-related patents: {len(crispr)}")
+from wordcloud import WordCloud
+
+text = " ".join(df["Abstract"].dropna().tolist())
+
+wc = WordCloud(
+    width=1400, height=700,
+    background_color="white",
+    colormap="Blues",
+    max_words=100,
+    collocations=False
+).generate(text)
+
+fig, ax = plt.subplots(figsize=(14, 7))
+ax.imshow(wc, interpolation="bilinear")
+ax.axis("off")
+ax.set_title("Patent Abstract Word Cloud — Thomas Jefferson University  |  2025",
+             fontsize=14, fontweight="bold", pad=15)
+plt.tight_layout()
+plt.savefig("wordcloud_TJU.png", dpi=150)
+plt.show()
 ```
 
----
+### Chart 5: Technology Clustering with TF-IDF + t-SNE
 
-## Example 5: Monitoring a Patent Portfolio Over Time
-
-Run the scraper periodically with an incrementally advancing start date to track new activity:
-
-```
-January run:  start date = 20250101
-February run: start date = 20250201
-March run:    start date = 20250301
-```
-
-The cache ensures inventors and co-assignees for previously seen patents are not re-fetched, making incremental runs fast.
-
----
-
-## Tips
-
-- **Large assignees** (Fortune 500, major universities) may return 100+ results — use parallel fetch with 5-10 workers
-- **Ambiguous names** (city-based institutions, common words) — always review the assignee list carefully
-- **Non-English patents** — Japanese, Korean, and Chinese assignee names are expected and correct; do not exclude them unless you are certain they refer to a different entity
-- **Cache management** — `patent_cache.json` accumulates over time. Delete it only if you suspect stale data
----
-
-## Example 6: Technology Clustering with TF-IDF + t-SNE
-
-Group a patent portfolio by technology area automatically using TF-IDF vectorization, KMeans clustering, and t-SNE dimensionality reduction for a rich 2D visualization. Useful for landscape mapping and identifying R&D focus areas across a large portfolio.
-
-Requires: `pip install scikit-learn matplotlib`
+Group patents by technology area using TF-IDF vectorization and t-SNE dimensionality reduction. Useful for landscape mapping and identifying R&D focus areas.
 
 ```python
-import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.manifold import TSNE
 from matplotlib.patches import Ellipse
-import matplotlib.pyplot as plt
 
-df = pd.read_excel("search_.../MIT_20200101_patents.xlsx", sheet_name="All Activity")
-df = df[df["Abstract"].notna() & (df["Abstract"] != "N/A")]
-
-# Vectorize abstracts
 vectorizer = TfidfVectorizer(max_features=1500, stop_words="english", ngram_range=(1, 2))
 X = vectorizer.fit_transform(df["Abstract"])
 
-# t-SNE for 2D visualization
 tsne = TSNE(n_components=2, random_state=7, perplexity=7, max_iter=3000, learning_rate=120)
 coords = tsne.fit_transform(X.toarray())
 df["x"], df["y"] = coords[:, 0], coords[:, 1]
 
-# Assign cluster labels manually or via KMeans, then plot
 cluster_colors = {
     "AI / Machine Learning": "#2E86AB",
     "Biotechnology":         "#E84855",
@@ -270,57 +256,39 @@ plt.show()
 
 ![Patent Clustering](patent_clustering.png)
 
-*Sample output: 43 patents from MIT's portfolio across 8 technology clusters — AI/ML, Biotechnology, Semiconductors, Clean Energy, Quantum Computing, Drug Delivery, Materials Science, and Neuroscience/BCI — with natural overlap between related fields (illustrative data, 2020–2025)*
+*Sample output: 43 patents from MIT's portfolio across 8 technology clusters with natural overlap between related fields (illustrative data, 2020–2025)*
 
----
+### Chart 6: Semantic Similarity Search
 
-## Example 7: Semantic Similarity Search with Embeddings
-
-Find patents most similar to a technology description using TF-IDF cosine similarity. Useful for prior art searches and identifying related work across a portfolio.
-
-Requires: `pip install scikit-learn matplotlib`
+Find patents most similar to a technology description using TF-IDF cosine similarity. Useful for prior art searches and identifying related work.
 
 ```python
-import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
-df = pd.read_excel("search_.../MIT_20200101_patents.xlsx", sheet_name="All Activity")
-df = df[df["Abstract"].notna() & (df["Abstract"] != "N/A")].reset_index(drop=True)
-
-# Your technology query
 query = "solid-state battery energy storage electrolyte"
 
-# Vectorize abstracts + query together
 corpus = df["Abstract"].tolist() + [query]
 vectorizer = TfidfVectorizer(max_features=500, stop_words="english")
 X = vectorizer.fit_transform(corpus)
 
-# Compute similarity between query and all patents
-query_vec = X[-1]
-patent_vecs = X[:-1]
-similarities = cosine_similarity(query_vec, patent_vecs).flatten()
+similarities = cosine_similarity(X[-1], X[:-1]).flatten()
 df["Similarity"] = similarities
-
-# Show top 10
 top = df.nlargest(10, "Similarity")[["Patent Number", "Title", "Similarity"]]
 
-# Plot
 fig, ax = plt.subplots(figsize=(12, 6))
 colors = ["mediumseagreen" if s >= 0.5 else "steelblue" if s >= 0.2 else "lightgray"
           for s in top["Similarity"]]
 ax.barh(top["Title"].str[:50], top["Similarity"], color=colors, edgecolor="white")
 ax.set_xlabel("Cosine Similarity Score")
-ax.set_title(f'Patent Similarity Search\nQuery: "{query}"', fontweight="bold")
+ax.set_title(f'Patent Similarity Search — Stanford University  |  2020–2025\nQuery: "{query}"',
+             fontweight="bold")
 ax.axvline(x=0.5, color="gray", linestyle="--", alpha=0.5)
 
-import matplotlib.patches as mpatches
 high = mpatches.Patch(color="mediumseagreen", label="High similarity (>=0.5)")
 med  = mpatches.Patch(color="steelblue",      label="Moderate (0.2-0.5)")
 low  = mpatches.Patch(color="lightgray",      label="Low (<0.2)")
 ax.legend(handles=[high, med, low], loc="upper right", framealpha=0.7)
-
 plt.tight_layout()
 plt.savefig("patent_similarity.png", dpi=150)
 plt.show()
@@ -328,4 +296,46 @@ plt.show()
 
 ![Patent Similarity Search](patent_similarity.png)
 
-*Sample output: Stanford University patents ranked by semantic similarity to the query "solid-state battery energy storage electrolyte" (illustrative data)*
+*Sample output: Stanford University patents ranked by semantic similarity to the query "solid-state battery energy storage electrolyte" (illustrative data, 2020–2025)*
+
+---
+
+## Example 5: Monitoring a Patent Portfolio Over Time
+
+Run the scraper periodically with an incrementally advancing start date to track new activity. The cache ensures inventors and co-assignees for previously seen patents are not re-fetched, making incremental runs fast.
+
+```
+January run:   start date = 20250101
+February run:  start date = 20250201
+March run:     start date = 20250301
+```
+
+**Sample output:**
+
+```
+=== Run: January 2025 ===
+  Granted:      4 patents
+  All Activity: 12 patents
+  API credits used: 2
+
+=== Run: February 2025 ===
+  Granted:      3 patents
+  All Activity: 8 patents
+  API credits used: 2
+
+=== Run: March 2025 ===
+  Granted:      2 patents
+  All Activity: 11 patents
+  API credits used: 2
+```
+
+**API credits used:** ~2 per run × 3 runs = 6 credits (well within the 250/month free tier)
+
+---
+
+## Tips
+
+- **Large assignees** (Fortune 500, major universities) may return 100+ results — use parallel fetch with 5-10 workers
+- **Ambiguous names** (city-based institutions, common words) — always review the assignee list carefully
+- **Non-English patents** — Japanese, Korean, and Chinese assignee names are expected and correct; do not exclude them unless you are certain they refer to a different entity
+- **Cache management** — `patent_cache.json` accumulates over time. Delete it only if you suspect stale data
