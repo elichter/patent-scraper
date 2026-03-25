@@ -2,6 +2,43 @@
 
 All notable changes to this project will be documented here.
 
+## [1.2.0] - 2026-03-25
+
+### Added
+- Co-assignee scraping from Google Patents "Current Assignee" section (free — no API credits)
+- Full inventor list scraped from Google Patents pages (free — no API credits)
+- Both inventors and co-assignees fetched in a single HTTP request per patent
+- Patent cache (`patent_cache.json`) stores inventors and co-assignees — repeat runs skip re-fetching
+- Optional parallel fetching via `ThreadPoolExecutor` with user-configurable worker count
+- Interactive assignee review step — displays all unique assignee names and lets user exclude false positives
+- 30-second countdown timer on assignee review — auto-proceeds if left unattended
+- Date range option — choose between start date through present, or a specific date range
+- Excluded institutions logged in summary txt with patent numbers and titles per institution
+- Monthly API credit tracker (`usage_tracker.json`) — tracks usage per month, auto-resets, warns at <20 remaining
+- Configurable monthly credit limit in `config.yaml` (default 250 for free tier)
+- Co-Assignees column added to Excel output, positioned after Assignee column
+- Explicit column order enforced in output
+- `images/` folder for all chart assets
+- `EXAMPLES.md` with 5 practical examples including real sample outputs
+- Visualization examples: grants by year, top co-assignees, jurisdiction activity, word cloud, t-SNE clustering, semantic similarity search
+- `wordcloud_TJU.png`, `patent_clustering.png`, `patent_similarity.png` sample chart images
+- `scikit-learn` and `wordcloud` added to dependencies
+- GitHub topics, marketing README with badges and SEO keywords
+- Known Limitations section in README
+- Deep links from README to EXAMPLES.md sections
+
+### Changed
+- Post-filter replaced by interactive assignee review (handles non-English assignee names correctly)
+- `inventor_cache.json` replaced by `patent_cache.json` (stores both inventors and co-assignees)
+- Output directory uses full assignee name; internal files use short tag (e.g. `TJU_`)
+- README fully redesigned with marketing copy, pipeline overview, and sample record table
+- Co-Assignees `NaN` normalized to string `"None"` consistently throughout
+
+### Fixed
+- Non-US patents (JP, KR, etc.) no longer incorrectly filtered out by English-only assignee matching
+- Duplicate README sections removed
+- Co-assignee filter now handles both `"None"` string and `NaN` values
+
 ## [1.1.0] - 2026-03-23
 
 ### Added
