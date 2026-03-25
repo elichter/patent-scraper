@@ -317,21 +317,23 @@ March run:     start date = 20250301
 **Sample output:**
 
 ```
-=== Run: January 2025 ===
+=== Run: January 2025 (from 20250101) ===
   Granted:      4 patents
   All Activity: 12 patents
   API credits used: 2
 
-=== Run: February 2025 ===
-  Granted:      3 patents
-  All Activity: 8 patents
+=== Run: February 2025 (from 20250201) ===
+  Granted:      7 patents
+  All Activity: 20 patents
   API credits used: 2
 
-=== Run: March 2025 ===
-  Granted:      2 patents
-  All Activity: 11 patents
+=== Run: March 2025 (from 20250301) ===
+  Granted:      9 patents
+  All Activity: 31 patents
   API credits used: 2
 ```
+
+*Note: counts are cumulative — each run searches from the start date through present, so later runs include all prior activity.*
 
 **API credits used:** ~2 per run × 3 runs = 6 credits (well within the 250/month free tier)
 
