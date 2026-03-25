@@ -20,6 +20,10 @@ __pycache__/
 *.pyo
 .env
 
+# Local reference files
+CHANGELOG_SETUP.md
+GIT_WORKFLOW.md
+
 # OS
 .DS_Store
 Thumbs.db
