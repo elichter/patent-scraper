@@ -37,7 +37,7 @@ The output is designed for immediate use in Excel, data science workflows, or st
 - Ensures completeness by merging queries so no granted patents are missed
 - Deduplicates patents with multiple titles (merged into a single record)
 - Built-in assignee review step ensures accuracy by letting users validate results before saving
-- Tracks API credit usage per run
+- Tracks API credit usage per run (live API credits can be obtained directly from https://serpapi.com/account?api_key=SECRET_API_KEY)
 - Caches inventor and co-assignee data for efficiency across runs
 - Parallelized data retrieval (optional) for faster execution
 - Auto-installs missing Python dependencies on first run
