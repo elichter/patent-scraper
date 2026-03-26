@@ -221,16 +221,11 @@ tsne = TSNE(n_components=2, random_state=7, perplexity=7, max_iter=3000, learnin
 coords = tsne.fit_transform(X.toarray())
 df["x"], df["y"] = coords[:, 0], coords[:, 1]
 
-cluster_colors = {
-    "AI / Machine Learning": "#2E86AB",
-    "Biotechnology":         "#E84855",
-    "Semiconductors":        "#7B5EA7",
-    "Clean Energy":          "#3BB273",
-    "Quantum Computing":     "#F4A261",
-    "Drug Delivery":         "#E9C46A",
-    "Materials Science":     "#457B9D",
-    "Neuroscience / BCI":    "#2A9D8F",
-}
+# Auto-assign colors — scales to any number of clusters
+import matplotlib.cm as cm
+clusters = df["ClusterName"].unique()
+cmap = cm.get_cmap("tab20", len(clusters))
+cluster_colors = {name: cmap(i) for i, name in enumerate(clusters)}
 
 fig, ax = plt.subplots(figsize=(14, 10))
 for name, color in cluster_colors.items():
