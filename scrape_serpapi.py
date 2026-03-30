@@ -349,55 +349,35 @@ def assignee_review(granted, all_patents):
     for i, a in enumerate(unique_assignees, 1):
         print(f"  {i}. {a}")
 
-    # Countdown timer — auto-proceeds with all assignees after 30s if unattended
-    TIMEOUT = 30
-    user_input = []
-    input_event = threading.Event()
+    import select
+    TIMEOUT = max(30, len(unique_assignees) * 5)
 
-    def get_input():
-        try:
-            val = input("\nExclude numbers (or Enter to keep all): ").strip()
-            user_input.append(val)
-        except Exception:
-            user_input.append("")
-        input_event.set()
+    print(f"\n  Review the list above. You have {TIMEOUT} seconds.")
+    print(f"  Type numbers to INCLUDE (e.g. 1,6,8) and press Enter, or press Enter alone to keep all.")
 
-    input_thread = threading.Thread(target=get_input, daemon=True)
-    input_thread.start()
+    ready, _, _ = select.select([sys.stdin], [], [], TIMEOUT)
 
-    for remaining in range(TIMEOUT, 0, -1):
-        if input_event.is_set():
-            break
-        print(f"\r  Auto-proceeding with all assignees in {remaining}s... (type to cancel)  ", end="", flush=True)
-        time.sleep(1)
-
-    if not input_event.is_set():
-        print(f"\r  No response — proceeding with all assignees.                              ")
-        raw = ""
+    if not ready:
+        print("  Time's up — proceeding with all assignees.")
+        included_raw = ""
     else:
-        print()
-        raw = user_input[0] if user_input else ""
+        included_raw = sys.stdin.readline().strip()
 
-    excluded = set()
     excluded_patents = {}
 
-    if raw:
+    if included_raw:
         try:
-            for n in raw.split(","):
-                idx = int(n.strip()) - 1
-                if 0 <= idx < len(unique_assignees):
-                    name = unique_assignees[idx]
-                    excluded.add(name)
-                    excluded_patents[name] = [
-                        p for p in all_pats if p.get("Assignee", "") == name
-                    ]
+            included_indices = {int(n.strip()) - 1 for n in included_raw.split(",") if n.strip()}
+            included_names = {unique_assignees[i] for i in included_indices if 0 <= i < len(unique_assignees)}
+            excluded_names = set(unique_assignees) - included_names
+            for name in excluded_names:
+                excluded_patents[name] = [p for p in all_pats if p.get("Assignee", "") == name]
+            print(f"  Keeping: {included_names}")
+            granted     = [p for p in granted     if p.get("Assignee", "") in included_names]
+            all_patents = [p for p in all_patents if p.get("Assignee", "") in included_names]
         except ValueError:
             print("  Invalid input — keeping all.")
-
-    if excluded:
-        print(f"  Excluding: {excluded}")
-        granted     = [p for p in granted     if p.get("Assignee", "") not in excluded]
-        all_patents = [p for p in all_patents if p.get("Assignee", "") not in excluded]
+            excluded_names = set()
 
     print(f"  Final: {len(granted)} granted, {len(all_patents)} all activity")
     print("=" * 60)

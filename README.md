@@ -37,7 +37,7 @@ The output is designed for immediate use in Excel, data science workflows, or st
 - Ensures completeness by merging queries so no granted patents are missed
 - Deduplicates patents with multiple titles (merged into a single record)
 - Built-in assignee review step ensures accuracy by letting users validate results before saving
-- Tracks API credit usage per run (live API credits can be obtained directly from https://serpapi.com/account?api_key=SECRET_API_KEY)
+- Tracks API credit usage per run
 - Caches inventor and co-assignee data for efficiency across runs
 - Parallelized data retrieval (optional) for faster execution
 - Auto-installs missing Python dependencies on first run
@@ -120,7 +120,7 @@ You will be prompted for:
 - **Assignee name** — e.g. `Thomas Jefferson University`
 - **Date filter** — choose between a start date through present (e.g. `20250101`) or a specific date range (e.g. `20230101` to `20251231`)
 - **Parallel fetch? (y/n)** — enter `y` for faster inventor/co-assignee scraping using parallel requests, or `n` for sequential (safer, less likely to be rate-limited). If `y`, you will also be asked how many parallel workers to use (recommended: 3-10, default 5)
-- **Assignee review** — after fetching, the script displays all unique assignee names returned by SerpAPI and asks you to exclude any that do not match your institution. A 30-second countdown timer auto-proceeds with all assignees if left unattended (useful for scheduled or unattended runs)
+   - **Assignee review** — after fetching, the script displays all unique assignee names returned by SerpAPI. Type the numbers to INCLUDE (e.g. `1,6,8`) and press Enter to keep only those, or press Enter alone to keep all. Auto-proceeds with all assignees if left unattended (timeout scales with list size — 5s per assignee, minimum 30s)
 
 ---
 
